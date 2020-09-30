@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/sha1": "^1.1.2",
+    "axios": "^0.20.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "mongodb": "^3.1.13",

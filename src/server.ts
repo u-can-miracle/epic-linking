@@ -1,30 +1,54 @@
-import * as crypto from 'crypto'
+import axios from 'axios'
 
-// 1) decode query from url using https://www.urldecoder.org/
-// const URL_DATA_QUERY = '%2BCjQaxBXMsIzK0RHD910YA%3D%3DCfT7HdoDe%2BMCsaxXHj3Q41oMs0g%2FvBZFDbQj7yv89m4%3D'
-const URL_DATA_QUERY = '+CjQaxBXMsIzK0RHD910YA==CfT7HdoDe+MCsaxXHj3Q41oMs0g/vBZFDbQj7yv89m4='
+const USERNAME = 'CARECLIX'
+const PASS = 's4hr#cFgkCzFfMRjhyp+'
+const AUTH_CREDS = `emp$${USERNAME}:${PASS}`
+const NON_PROD_CLIENT_ID = '7b3ba072-afc5-4c30-b1a3-29584e109bed'
+const basicAuthToken = encodeToBase64(AUTH_CREDS)
+const url = getSetConnectionStatusUrl({
+  ConferenceID: 1853,
+  ExternalID: 19,
+  ExternalIDType: 2,
+  VendorName: 'Telehealth Vendor',
+  ConnectionStatus: 1,
+})
+axios.get(url, {
+  headers: {
+    'Authorization': `Basic ${basicAuthToken}`,
+    'Epic-Client-ID': NON_PROD_CLIENT_ID,
+  },
+})
+.then(result => console.log('result', result.data))
+.catch(err => console.log('err', err))
 
-const PASS = Buffer.from('JdOXYHVx6j5VIKzlheWLlg==', 'base64')
-// const PASS1 = 'thisisthepa$$word'
-// 'thisisthepa$$word' -> 'JdOXYHVx6j5VIKzlheWLlg=='
+/***  Functions declarations  ***/
 
-// Get IV from Query string
-const IVPiece = URL_DATA_QUERY.slice(0, 24)
-const IVPieceByte = new Buffer(IVPiece, 'base64')
+function encodeToBase64(data) {
+  const buff = new Buffer(data)
+  const base64data = buff.toString('base64')
 
-// Get Encrypted data from query string
-const encryptedString = URL_DATA_QUERY.slice(24)
-const encryptedStringByte = Buffer.from(encryptedString, 'base64')
-
-const algorithm = 'aes-128-cbc'
-
-function decrypt(text, key, iv) {
-  const decipher = crypto.createDecipheriv(algorithm, key, iv)
-  let dec = decipher.update(text, 'base64', 'utf8')
-  dec += decipher.final()
-
-  return dec
+  return base64data
 }
 
-const deco = decrypt(encryptedStringByte, PASS, IVPieceByte)
-console.log('deco', deco)
+function getSetConnectionStatusUrl({
+  ConferenceID,
+  ExternalID,
+  ExternalIDType,
+  VendorName,
+  ConnectionStatus,
+}) {
+  // @ts-ignore:disable-next-line
+  // https://apporchard.epic.com/interconnect-aocurprd-username/api/epic/2018/Telehealth/ContextLinking/SetExternalConnectionStatus?ConferenceID={ConferenceID}&ExternalID={ExternalID}&ExternalIDType={ExternalIDType}&VendorName={VendorName}&ConnectionStatus={ConnectionStatus}
+
+  const BASE_URL = 'https://apporchard.epic.com/interconnect-aocurprd-username'
+  const EXTERNAL_CONNECTION_STATUS = '/api/epic/2018/Telehealth/ContextLinking/SetExternalConnectionStatus'
+  const apiUrl = BASE_URL +
+    EXTERNAL_CONNECTION_STATUS + '?' +
+    `ConferenceID=${ConferenceID}&` +
+    `ExternalID=${ExternalID}&` +
+    `ExternalIDType=${ExternalIDType}&` +
+    `VendorName=${VendorName}&` +
+    `ConnectionStatus=${ConnectionStatus}`
+
+  return apiUrl
+}

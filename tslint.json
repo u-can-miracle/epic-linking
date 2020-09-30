@@ -10,7 +10,7 @@
     "radix": false,
     "semicolon": [true, "never"],
     "trailing-comma": false,
-		"indent": [true, "tabs", 2],
+		"indent": [true, "spaces", 2],
 		"ordered-imports": false,
 		"arrow-parens": false,
 		"object-literal-sort-keys": false,
